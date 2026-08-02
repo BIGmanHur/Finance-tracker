@@ -1,0 +1,16 @@
+{
+  "name": "Finance Tracker PWA",
+  "short_name": "FinanceTracker",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0F172a",
+  "theme_color": "#0F172a",
+  "icons": [
+    {
+      "src": "/icon.png?v=2",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

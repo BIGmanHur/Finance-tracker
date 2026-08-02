@@ -1,0 +1,6 @@
+Title,Amount,Type,Category,Context,Date
+"Client Project Payment",13420,income,Services,business,2026-07-31T05:09:09.834Z
+"Office Rent & Supplies",8230,expense,Rent,business,2026-07-31T05:09:09.838Z
+"Monthly Salary",15000,income,Salary,personal,2026-07-31T05:09:09.841Z
+"Supermarket Grocery Shopping",1250,expense,Food,personal,2026-07-31T05:09:09.844Z
+"Client Payment",10000000,expense,Services,business,2026-08-01

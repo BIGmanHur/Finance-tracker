@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finance Tracker</title>
+
+  <!-- Chart.js Engine -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <link rel="stylesheet" href="./src/styles.css" />
+  <link rel="manifest" href="/manifest.json" />
+<link rel="apple-touch-icon" href="/icon.png" />
+  <script type="module" src="./js/app.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col md:flex-row antialiased">
+
+  <!-- DESKTOP SIDEBAR -->
+  <aside class="hidden md:flex w-64 bg-slate-900 border-r border-slate-800 flex-col p-6 space-y-8 min-h-screen shrink-0">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">🌱</span>
+      <span class="font-bold text-lg tracking-wide text-emerald-400">Finance Tracker</span>
+    </div>
+
+    <nav class="flex-1 space-y-1.5 font-medium text-sm">
+      <a href="#dashboard" data-nav="dashboard" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 font-semibold">
+        Dashboard
+      </a>
+      <a href="#transactions" data-nav="transactions" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800">
+        Transactions
+      </a>
+      <a href="#insights" data-nav="insights" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800">
+        Insights
+      </a>
+      <a href="#reports" data-nav="reports" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800">
+        Reports
+      </a>
+      <a href="#settings" data-nav="settings" class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800">
+        Settings
+      </a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT AREA -->
+  <main class="flex-1 flex flex-col min-h-screen pb-20 md:pb-8">
+
+   <!-- Header -->
+    <header class="bg-slate-900/50 backdrop-blur border-b border-slate-800 p-4 sticky top-0 z-40 flex items-center justify-between">
+      <div>
+        <h1 id="page-title" class="text-lg font-bold text-white">Dashboard Overview</h1>
+        <p class="text-xs text-slate-400">Real-time local data from IndexedDB</p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Context Switcher -->
+        <div class="bg-slate-800 p-1 rounded-xl flex border border-slate-700 text-xs font-semibold">
+          <button id="btn-business" class="px-3 py-1.5 rounded-lg bg-emerald-500 text-slate-950">Business</button>
+          <button id="btn-personal" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white">Personal</button>
+        </div>
+
+        <!-- Add Transaction Button -->
+        <button id="open-modal-btn" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors">
+          + Add Transaction
+        </button>
+      </div>
+    </header>
+    <!-- Page Content Container -->
+    <div class="p-4 md:p-8 max-w-6xl w-full mx-auto">
+
+      <!-- DASHBOARD VIEW -->
+      <section id="view-dashboard" class="page-view space-y-6">
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-sm">
+            <p class="text-xs text-slate-400 font-medium mb-1">Total Income</p>
+            <p id="stat-income" class="text-2xl font-bold text-emerald-400">KSh 0</p>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-sm">
+            <p class="text-xs text-slate-400 font-medium mb-1">Total Expenses</p>
+            <p id="stat-expenses" class="text-2xl font-bold text-rose-400">KSh 0</p>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl shadow-sm">
+            <p class="text-xs text-slate-400 font-medium mb-1">Net Savings</p>
+            <p id="stat-net" class="text-2xl font-bold text-sky-400">KSh 0</p>
+          </div>
+        </div>
+
+        <!-- DASHBOARD CHARTS SECTION -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <!-- Donut Chart Card -->
+          <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3">
+            <h3 class="font-bold text-slate-100 text-sm">Spending Distribution</h3>
+            <div class="relative h-64 w-full">
+              <canvas id="chart-donut"></canvas>
+            </div>
+          </div>
+
+          <!-- Line Chart Card -->
+          <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-3">
+            <h3 class="font-bold text-slate-100 text-sm">Spending Trend</h3>
+            <div class="relative h-64 w-full">
+              <canvas id="chart-line"></canvas>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+    <!-- TRANSACTIONS VIEW -->
+<section id="view-transactions" class="page-view space-y-6 hidden">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-xl font-bold text-slate-100">All Transactions</h2>
+  </div>
+
+  <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-lg">
+    <div id="tx-list" class="divide-y divide-slate-800">
+      <!-- Dynamic transaction records render here -->
+    </div>
+  </div>
+</section>
+
+    <!-- INSIGHTS VIEW -->
+<section id="view-insights" class="page-view space-y-6 hidden">
+  <h2 class="text-xl font-bold text-slate-100">Insights</h2>
+  <p class="text-slate-400">Financial insights and recommendations.</p>
+  <div id="insights-container"></div>
+</section>
+
+<!-- REPORTS VIEW -->
+<section id="view-reports" class="page-view space-y-6 hidden">
+  <h2 class="text-xl font-bold text-slate-100">Reports</h2>
+  <p class="text-slate-400">Export and view monthly reports.</p>
+  <div id="reports-container"></div>
+</section>
+
+
+      <!-- SETTINGS VIEW -->
+    <!-- SETTINGS VIEW -->
+    <section id="view-settings" class="page-view space-y-6 hidden">
+      <h2 class="text-xl font-bold text-slate-100">Settings</h2>
+      <p class="text-slate-400">App settings and currency configuration.</p>
+
+      <!-- Data Backup & CSV Export Card -->
+     <!-- Data Backup & CSV Export Card -->
+<div class="bg-slate-900 border border-slate-800 p-6 rounded-xl shadow-xl space-y-4">
+  <div>
+    <h3 class="text-lg font-bold text-slate-100">Data Management</h3>
+    <p class="text-sm text-slate-400">Export your financial records or restore them from a CSV file.</p>
+  </div>
+
+  <div class="flex flex-wrap gap-4 pt-2">
+    <!-- Export Button -->
+    <button
+      id="export-csv-btn"
+      class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg text-sm transition-colors">
+      📥 Export to CSV
+    </button>
+
+    <!-- Import Button -->
+    <button
+      id="import-csv-btn"
+      class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold rounded-lg text-sm transition-colors">
+      📤 Import from CSV
+    </button>
+
+    <!-- Hidden File Input for Browser Upload -->
+    <input type="file" id="csv-file-input" accept=".csv" class="hidden" aria-label="Upload CSV file" title="Upload CSV file">
+  </div>
+</div>
+      </div>
+    </section>
+    </div>
+  </main>
+<!-- ADD TRANSACTION MODAL -->
+<div id="transaction-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm items-center justify-center p-4">
+  <div class="bg-slate-900 border border-slate-800 rounded-xl w-full max-w-md p-6 shadow-2xl relative">
+    
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+      <h3 class="text-lg font-semibold text-slate-100">Add New Transaction</h3>
+      <button id="close-modal-btn" type="button" aria-label="Close modal" class="text-slate-400 hover:text-slate-200 text-xl font-bold p-1">&times;</button>
+    </div>
+
+    <!-- Transaction Form -->
+    <form id="add-transaction-form" class="space-y-4 mt-4">
+      
+      <!-- Title -->
+      <div>
+      <label for="tx-title" class="block text-xs font-medium text-slate-400 mb-1">Description / Title</label>
+      <input 
+        type="text" 
+        id="tx-title" 
+        name="tx-title" 
+        list="tx-suggestions" 
+        required 
+        placeholder="e.g. Client Payment, Groceries" 
+        class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500"
+      />
+      <datalist id="tx-suggestions">
+        <option value="Client Payment"></option>
+        <option value="Supermarket Groceries"></option>
+        <option value="Office Rent & Supplies"></option>
+        <option value="Monthly Salary"></option>
+        <option value="Electricity & Utilities"></option>
+        <option value="Freelance Services"></option>
+      </datalist>
+    </div>
+
+      <!-- Amount & Type -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label for="tx-amount" class="block text-xs font-medium text-slate-400 mb-1">Amount (KSh)</label>
+          <input type="number" id="tx-amount" name="tx-amount" step="0.01" required placeholder="0.00" 
+            class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label for="tx-type" class="block text-xs font-medium text-slate-400 mb-1">Type</label>
+          <select id="tx-type" name="tx-type" title="Transaction Type" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Category & Context -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label for="tx-category" class="block text-xs font-medium text-slate-400 mb-1">Category</label>
+          <select id="tx-category" name="tx-category" title="Transaction Category" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+            <option value="Services">Services</option>
+            <option value="Rent">Rent</option>
+            <option value="Food">Food</option>
+            <option value="Utilities">Utilities</option>
+            <option value="Salary">Salary</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label for="tx-context" class="block text-xs font-medium text-slate-400 mb-1">Context</label>
+          <select id="tx-context" name="tx-context" title="Transaction Context" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+            <option value="business">Business</option>
+            <option value="personal">Personal</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Date -->
+      <div>
+        <label for="tx-date" class="block text-xs font-medium text-slate-400 mb-1">Date</label>
+        <input type="date" id="tx-date" name="tx-date" title="Transaction Date" required 
+          class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-500">
+      </div>
+
+      <!-- Submit Button -->
+      <div class="pt-2">
+        <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-semibold py-2.5 rounded-lg text-sm transition-colors">
+          Save Transaction
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+</body>
+</html>
